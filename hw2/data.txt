@@ -1,4 +1,4 @@
-knew before RPI,share(d) dormroom or apartment,met in CSCI 1200 Data Structures,met at RPI,met today!,total
+#knew before RPI,share(d) dormroom or apartment,met in CSCI 1200 Data Structures,met at RPI,met today!,total
 0,0,11,7,22,40
 0,1,2,3,34,40
 0,0,2,1,37,40
@@ -27,4 +27,4 @@ knew before RPI,share(d) dormroom or apartment,met in CSCI 1200 Data Structures,
 1,0,3,0,36,40
 1,0,0,4,35,40
 1,1,2,1,35,40
-0.1428571429,0.3928571429,2.142857143,3.821428571,33.5
+#0.1428571429,0.3928571429,2.142857143,3.821428571,33.5
