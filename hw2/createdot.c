@@ -1,15 +1,31 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include "argp.h"
 #include "glib.h"
 
 #define MAX_PARTS 5
 #define NUM_ENTRIES 28
 #define MAX_LENGTH 1024
 
-void parse_data(char *filename, int **data);
+static void parse_data(char *filename, int **data);
+static int parse_opt(int key, char *arg, struct argp_state *state);
+
+char doc[] = "This program generates DOT files for graphvis";
+char args_doc[] = "";
+
+int num_nodes = 0;
+
+static struct argp_option options[] = {
+    {"nodes", 'n', "NUM", 0, "number of nodes in graph"},
+    {"sparse", 's', 0, 0, "sparse graph"},
+    {"type", 't', 0, 0, "type of graph"},
+    {0}
+};
+static struct argp argp = {options, parse_opt, args_doc, doc};
 
 int main(int argc, char **argv)
 {
+    argp_parse(&argp, argc, argv, 0, 0, 0);
     char filename[256];
     sprintf(filename, "data.txt");
 
@@ -50,3 +66,13 @@ void parse_data(char *filename, int **data)
 
 }
 
+int parse_opt(int key, char *arg, struct argp_state *state)
+{
+    switch(key)
+    {
+        case 'n':
+            num_nodes = atoi(arg);
+            break;
+    }
+    return 0;
+}
