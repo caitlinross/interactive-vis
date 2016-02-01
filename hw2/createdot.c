@@ -10,7 +10,9 @@
 
 static void parse_data(char *filename, int **data);
 static int parse_opt(int key, char *arg, struct argp_state *state);
-static void create_graph();
+static void graphing();
+static Agraph_t *create_graph();
+static void draw_graph(Agraph_t *G);
 
 char doc[] = "This program generates DOT files for graphvis";
 char args_doc[] = "";
@@ -81,7 +83,34 @@ int parse_opt(int key, char *arg, struct argp_state *state)
 }
 
 /* create graph using graphviz library */
-void create_graph()
+void graphing()
 {
-//    Agraph_t* G;
+    Agraph_t *G;
+//    Agnode_t *n, *m;
+//    Agedge_t *e;
+//    Agsym_t *a;
+    GVC_t *gvc;
+
+    gvc =gvContext();
+    G = create_graph();
+    gvLayout(gvc, G, "dot");
+    draw_graph(G);
+    gvFreeLayout(gvc, G);
+    agclose(G);
+    gvFreeContext(gvc);
+
+ /*   g = agopen("g", Agdirected);
+    n = agnode(g, "n", 1);
+    m = agnode(g, "m", 1);
+    e = agedge(g, n, m, 0, 1);*/
+
+}
+
+Agraph_t *create_graph(char *name, Agdesc_t type, int **data)
+{
+    Agraph_t *G = agopen(name, type, 0);
+}
+
+void draw_graph(Agraph_t *G)
+{
 }
