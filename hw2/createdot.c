@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <gvc.h>
 #include "argp.h"
 #include "glib.h"
 
@@ -9,6 +10,7 @@
 
 static void parse_data(char *filename, int **data);
 static int parse_opt(int key, char *arg, struct argp_state *state);
+static void create_graph();
 
 char doc[] = "This program generates DOT files for graphvis";
 char args_doc[] = "";
@@ -66,6 +68,7 @@ void parse_data(char *filename, int **data)
 
 }
 
+/* used by argp to parse command line args */
 int parse_opt(int key, char *arg, struct argp_state *state)
 {
     switch(key)
@@ -75,4 +78,10 @@ int parse_opt(int key, char *arg, struct argp_state *state)
             break;
     }
     return 0;
+}
+
+/* create graph using graphviz library */
+void create_graph()
+{
+//    Agraph_t* G;
 }
