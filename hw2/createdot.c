@@ -10,9 +10,8 @@
 
 static void parse_data(char *filename, int **data);
 static int parse_opt(int key, char *arg, struct argp_state *state);
-static void graphing();
-static Agraph_t *create_graph();
-static void draw_graph(Agraph_t *G);
+static void graphing(int **data);
+static Agraph_t *create_graph(char *name, Agdesc_t type, int **data);
 
 char doc[] = "This program generates DOT files for graphvis";
 char args_doc[] = "";
@@ -40,6 +39,8 @@ int main(int argc, char **argv)
     }
     parse_data(filename, data);
 
+    graphing(data);
+
     return EXIT_SUCCESS;
 }
 
@@ -56,7 +57,7 @@ void parse_data(char *filename, int **data)
     int i = 0;
     while (fgets(line, sizeof(line), f) != NULL) /* read a line */
     {
-        if (line[0] == '#')
+        if (line[0] != '#')
         {
             gchar **parts = g_strsplit(line, ",", MAX_PARTS);
             for (int j = 0; j < MAX_PARTS; j++)
@@ -83,7 +84,7 @@ int parse_opt(int key, char *arg, struct argp_state *state)
 }
 
 /* create graph using graphviz library */
-void graphing()
+void graphing(int **data)
 {
     Agraph_t *G;
 //    Agnode_t *n, *m;
@@ -91,10 +92,11 @@ void graphing()
 //    Agsym_t *a;
     GVC_t *gvc;
 
-    gvc =gvContext();
-    G = create_graph();
+    gvc = gvContext();
+    G = create_graph("test", Agdirected, data);
     gvLayout(gvc, G, "dot");
-    draw_graph(G);
+    gvRenderFilename(gvc, G, "dot", "class.dot");
+    gvRenderFilename(gvc, G, "png", "class.png");
     gvFreeLayout(gvc, G);
     agclose(G);
     gvFreeContext(gvc);
@@ -109,8 +111,61 @@ void graphing()
 Agraph_t *create_graph(char *name, Agdesc_t type, int **data)
 {
     Agraph_t *G = agopen(name, type, 0);
+    Agnode_t *root = agnode(G, "Interactive Vis Students", 1);
+    Agraph_t *before_RPI = agsubg(G, "before RPI", 1);
+    Agraph_t *dorm = agsubg(G, "Roommates", 1);
+    Agraph_t *ds = agsubg(G, "Data Structures", 1);
+    Agraph_t *from_RPI = agsubg(G, "From RPI", 1);
+    Agraph_t *today = agsubg(G, "this class", 1);
+    Agnode_t *bR = agnode(before_RPI, "Knew before RPI", 1);
+    Agnode_t *dor = agnode(dorm, "Met as roommates", 1);
+    Agnode_t *d = agnode(ds, "Met in Data Structures", 1);
+    Agnode_t *fR = agnode(from_RPI, "Met at RPI", 1);
+    Agnode_t *t = agnode(today, "Met in this class", 1);
+    agedge(G, root, bR, "", 1);
+    agedge(G, root, dor, "", 1);
+    agedge(G, root, d, "", 1);
+    agedge(G, root, fR, "", 1);
+    agedge(G, root, t, "", 1);
+    
+    for (int i = 0; i < NUM_ENTRIES; i++)
+    {
+        char tmp[16];
+        char tmp2[16];
+        Agnode_t *t_node;
+
+        sprintf(tmp, "%d_0", data[i][0]);
+        sprintf(tmp2, "%d", data[i][0]);
+        t_node = agnode(before_RPI, tmp, 1);
+        agset(t_node, "label", tmp2); 
+        agedge(before_RPI, bR, t_node, tmp, 1);
+
+        sprintf(tmp, "%d_1", data[i][1]);
+        sprintf(tmp2, "%d", data[i][1]);
+        t_node = agnode(dorm, tmp, 1);
+        agset(t_node, "label", tmp2); 
+        agedge(dorm, dor, t_node, tmp, 1);
+
+        sprintf(tmp, "%d_2", data[i][2]);
+        sprintf(tmp2, "%d", data[i][2]);
+        t_node = agnode(ds, tmp, 1);
+        agset(t_node, "label", tmp2); 
+        agedge(ds, d, t_node, tmp, 1);
+
+        sprintf(tmp, "%d_3", data[i][3]);
+        sprintf(tmp2, "%d", data[i][3]);
+        t_node = agnode(from_RPI, tmp, 1);
+        agset(t_node, "label", tmp2); 
+        agedge(from_RPI, fR, t_node, tmp, 1);
+
+        sprintf(tmp, "%d_4", data[i][4]);
+        sprintf(tmp2, "%d", data[i][4]);
+        t_node = agnode(today, tmp, 1);
+        agset(t_node, "label", tmp2); 
+        agedge(today, t, t_node, tmp, 1);
+
+
+    }
+    return G;
 }
 
-void draw_graph(Agraph_t *G)
-{
-}
