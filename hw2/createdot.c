@@ -3,6 +3,7 @@
 #include <gvc.h>
 #include "argp.h"
 #include "glib.h"
+#include <time.h>
 
 #define MAX_PARTS 5
 #define NUM_ENTRIES 28
@@ -15,6 +16,7 @@ static int parse_opt(int key, char *arg, struct argp_state *state);
 static void graphing(int **data, char *name, Agdesc_t type);
 static Agraph_t *class_graph(char *name, Agdesc_t type, int **data);
 static Agraph_t *awesim_inf_graph(char *name, Agdesc_t type);
+static Agraph_t *bipartite_graph(char *name, Agdesc_t type);
 
 char doc[] = "This program generates DOT files for graphvis";
 char args_doc[] = "";
@@ -22,13 +24,12 @@ char args_doc[] = "";
 int num_nodes = 5;
 int awesim_f = 0;
 int class_f = 0;
+int bipar_f = 0;
 char *filename;
 Agdesc_t type;
 
 static struct argp_option options[] = {
     {"nodes", 'n', "n", 0, "number of nodes in graph"},
-    {"sparse", 's', 0, 0, "sparse graph"},
-    {"type", 't', 0, 0, "type of graph"},
     {"awesim", 'a', 0, 0, "create graph of awesim infrastructure"},
     {"class-data", 'c', "str", 0, "input filename to create graph from class data"},
     {"bipartite", 'b', 0, 0, "create a bipartite graph (use --nodes to set size)"},
@@ -39,6 +40,7 @@ static struct argp argp = {options, parse_opt, args_doc, doc};
 
 int main(int argc, char **argv)
 {
+    srand48(time(0));
     type = Agstrictdirected;
     filename = malloc(sizeof(char)*256);
     argp_parse(&argp, argc, argv, 0, 0, 0);
@@ -47,6 +49,8 @@ int main(int argc, char **argv)
         graphing(NULL, "awesim", type);
     if(class_f)
         class_data_stuff(filename);
+    if (bipar_f)
+        graphing(NULL, "bipartite", type);
 
     return EXIT_SUCCESS;
 }
@@ -105,6 +109,9 @@ int parse_opt(int key, char *arg, struct argp_state *state)
             break;
         case 'd':
             type = Agstrictundirected;        
+            break;
+        case 'b':
+            bipar_f = 1;
 
     }
     return 0;
@@ -121,9 +128,14 @@ void graphing(int **data, char *name, Agdesc_t type)
         G = class_graph(name, type, data);
         gvLayout(gvc, G, "circo");
     }
-    else //if (strcmp(name, "awesim") == 0)
+    else if (strcmp(name, "awesim") == 0)
     {
         G = awesim_inf_graph(name, type);
+        gvLayout(gvc, G, "dot");
+    }
+    else
+    {
+        G = bipartite_graph(name, type);
         gvLayout(gvc, G, "dot");
     }
     char filename[256];
@@ -260,4 +272,42 @@ Agraph_t *awesim_inf_graph(char *name, Agdesc_t type)
 
 Agraph_t *bipartite_graph(char *name, Agdesc_t type)
 {
+    Agraph_t *G = agopen(name, type, 0);
+    agset(G, "nodesep", "23");
+    agset(G, "ranksep", "26");
+    Agraph_t *g1 = agsubg(G, "cluster_1", 1);
+    agset(g1, "rank", "same");
+    Agraph_t *g2 = agsubg(G, "cluster_2", 1);
+    agset(g2, "rank", "same");
+
+    Agnode_t *n1[num_nodes];
+    Agnode_t *n2[num_nodes];
+
+    int i1 = 0, i2 = 0;
+    for (int i = 0; i < num_nodes; i++)
+    {
+        double r = drand48();
+        char tmp[4];
+        sprintf(tmp, "%d", i); 
+        if (r < .5)
+        {
+            n1[i1] = agnode(g1, tmp, 1);
+            i1++;
+        }
+        else
+        {
+            n2[i2] = agnode(g2, tmp, 1);
+            i2++;
+        }
+    }
+
+    for (int i = 0; i < i1; i++)
+    {
+        for (int j = 0; j < i2; j++)
+        {
+            agedge(G, n1[i], n2[j], NULL, 1);
+            agedge(G, n2[j], n1[i], NULL, 1);
+        }
+    }
+    return G;
 }
