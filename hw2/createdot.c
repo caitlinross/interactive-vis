@@ -10,7 +10,7 @@
 
 static void parse_data(char *filename, int **data);
 static int parse_opt(int key, char *arg, struct argp_state *state);
-static void graphing(int **data);
+void graphing(int **data, char *name, Agdesc_t type);
 static Agraph_t *create_graph(char *name, Agdesc_t type, int **data);
 
 char doc[] = "This program generates DOT files for graphvis";
@@ -39,7 +39,7 @@ int main(int argc, char **argv)
     }
     parse_data(filename, data);
 
-    graphing(data);
+    graphing(data, "class", Agundirected);
 
     return EXIT_SUCCESS;
 }
@@ -84,28 +84,21 @@ int parse_opt(int key, char *arg, struct argp_state *state)
 }
 
 /* create graph using graphviz library */
-void graphing(int **data)
+void graphing(int **data, char *name, Agdesc_t type)
 {
     Agraph_t *G;
-//    Agnode_t *n, *m;
-//    Agedge_t *e;
-//    Agsym_t *a;
     GVC_t *gvc;
-
     gvc = gvContext();
-    G = create_graph("test", Agdirected, data);
-    gvLayout(gvc, G, "dot");
-    gvRenderFilename(gvc, G, "dot", "class.dot");
-    gvRenderFilename(gvc, G, "png", "class.png");
+    G = create_graph(name, type, data);
+    gvLayout(gvc, G, "circo");
+    char filename[256];
+    sprintf(filename, "%s.gv", name);
+    gvRenderFilename(gvc, G, "dot", filename);
+    sprintf(filename, "%s.png", name);
+    gvRenderFilename(gvc, G, "png", filename);
     gvFreeLayout(gvc, G);
     agclose(G);
     gvFreeContext(gvc);
-
- /*   g = agopen("g", Agdirected);
-    n = agnode(g, "n", 1);
-    m = agnode(g, "m", 1);
-    e = agedge(g, n, m, 0, 1);*/
-
 }
 
 Agraph_t *create_graph(char *name, Agdesc_t type, int **data)
@@ -134,36 +127,50 @@ Agraph_t *create_graph(char *name, Agdesc_t type, int **data)
         char tmp2[16];
         Agnode_t *t_node;
 
-        sprintf(tmp, "%d_0", data[i][0]);
-        sprintf(tmp2, "%d", data[i][0]);
-        t_node = agnode(before_RPI, tmp, 1);
-        agset(t_node, "label", tmp2); 
-        agedge(before_RPI, bR, t_node, tmp, 1);
+        if (data[i][0] != 0)
+        {
+            sprintf(tmp, "%d_%d_0", data[i][0], i);
+            sprintf(tmp2, "%d", data[i][0]);
+            t_node = agnode(before_RPI, tmp, 1);
+            agset(t_node, "label", tmp2); 
+            agedge(before_RPI, bR, t_node, tmp, 1);
+        }
 
-        sprintf(tmp, "%d_1", data[i][1]);
-        sprintf(tmp2, "%d", data[i][1]);
-        t_node = agnode(dorm, tmp, 1);
-        agset(t_node, "label", tmp2); 
-        agedge(dorm, dor, t_node, tmp, 1);
+        if (data[i][1] != 0)
+        {
+            sprintf(tmp, "%d_%d_1", data[i][1], i);
+            sprintf(tmp2, "%d", data[i][1]);
+            t_node = agnode(dorm, tmp, 1);
+            agset(t_node, "label", tmp2); 
+            agedge(dorm, dor, t_node, tmp, 1);
+        }
 
-        sprintf(tmp, "%d_2", data[i][2]);
-        sprintf(tmp2, "%d", data[i][2]);
-        t_node = agnode(ds, tmp, 1);
-        agset(t_node, "label", tmp2); 
-        agedge(ds, d, t_node, tmp, 1);
+        if (data[i][2] != 0)
+        {
+            sprintf(tmp, "%d_%d_2", data[i][2], i);
+            sprintf(tmp2, "%d", data[i][2]);
+            t_node = agnode(ds, tmp, 1);
+            agset(t_node, "label", tmp2); 
+            agedge(ds, d, t_node, tmp, 1);
+        }
 
-        sprintf(tmp, "%d_3", data[i][3]);
-        sprintf(tmp2, "%d", data[i][3]);
-        t_node = agnode(from_RPI, tmp, 1);
-        agset(t_node, "label", tmp2); 
-        agedge(from_RPI, fR, t_node, tmp, 1);
+        if (data[i][3] != 0)
+        {
+            sprintf(tmp, "%d_%d_3", data[i][3], i);
+            sprintf(tmp2, "%d", data[i][3]);
+            t_node = agnode(from_RPI, tmp, 1);
+            agset(t_node, "label", tmp2); 
+            agedge(from_RPI, fR, t_node, tmp, 1);
+        }
 
-        sprintf(tmp, "%d_4", data[i][4]);
-        sprintf(tmp2, "%d", data[i][4]);
-        t_node = agnode(today, tmp, 1);
-        agset(t_node, "label", tmp2); 
-        agedge(today, t, t_node, tmp, 1);
-
+        if (data[i][4] != 0)
+        {
+            sprintf(tmp, "%d_%d_4", data[i][4], i);
+            sprintf(tmp2, "%d", data[i][4]);
+            t_node = agnode(today, tmp, 1);
+            agset(t_node, "label", tmp2); 
+            agedge(today, t, t_node, tmp, 1);
+        }
 
     }
     return G;
