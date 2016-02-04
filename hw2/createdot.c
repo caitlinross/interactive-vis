@@ -1,3 +1,9 @@
+/*
+ * Author: Caitlin Ross
+ * CSCI 6963 Interactive Visualization
+ * Assignment 2
+ * Due:  2/4/16
+ */
 #include <stdlib.h>
 #include <stdio.h>
 #include <gvc.h>
@@ -20,9 +26,11 @@ static Agraph_t *create_tree(char *name, Agdesc_t type, int levels);
 static Agraph_t *tree_recurse(Agraph_t *G, Agnode_t *root, int level, int *index);
 static Agraph_t *create_square(char *name, Agdesc_t type, int num_nodes);
 
+// some set up for argp
 char doc[] = "This program generates DOT files for graphvis";
 char args_doc[] = "";
 
+// create flags and other vars for storing cmd line args
 int num_nodes = 5;
 int awesim_f = 0;
 int class_f = 0;
@@ -32,6 +40,7 @@ int tree_levels = 0;
 char *filename;
 Agdesc_t type;
 
+// cmd line options
 static struct argp_option options[] = {
     {"nodes", 'n', "n", 0, "number of nodes in graph"},
     {"awesim", 'a', 0, 0, "create graph of awesim infrastructure"},
@@ -51,6 +60,7 @@ int main(int argc, char **argv)
     filename = malloc(sizeof(char)*256);
     argp_parse(&argp, argc, argv, 0, 0, 0);
 
+    // call appropriate graphing functions based on cmd line args
     if (awesim_f)
         graphing(NULL, "awesim", type, 0, num_nodes);
     if(class_f)
@@ -91,6 +101,7 @@ void parse_data(char *filename, int **data)
     }
 }
 
+// some set up for getting data and calling graphing cunction
 void class_data_stuff(char *filename)
 {
     int **data = malloc(NUM_ENTRIES*sizeof(int*));
@@ -133,7 +144,7 @@ int parse_opt(int key, char *arg, struct argp_state *state)
     return 0;
 }
 
-/* create graph using graphviz library */
+// create graph using graphviz library 
 void graphing(int **data, char *name, Agdesc_t type, int tree_levels, int num_nodes)
 {
     Agraph_t *G;
@@ -174,6 +185,7 @@ void graphing(int **data, char *name, Agdesc_t type, int tree_levels, int num_no
     gvFreeContext(gvc);
 }
 
+// create graph based on class data
 Agraph_t *class_graph(char *name, Agdesc_t type, int **data)
 {
     Agraph_t *G = agopen(name, type, 0);
@@ -249,6 +261,7 @@ Agraph_t *class_graph(char *name, Agdesc_t type, int **data)
     return G;
 }
 
+// create graph based on the infrastructure simulated in my research
 Agraph_t *awesim_inf_graph(char *name, Agdesc_t type, int num_nodes)
 {
     Agraph_t *G = agopen(name, type, 0);
@@ -297,6 +310,7 @@ Agraph_t *awesim_inf_graph(char *name, Agdesc_t type, int num_nodes)
     return G;
 }
 
+// create a complete bipartite graph
 Agraph_t *bipartite_graph(char *name, Agdesc_t type)
 {
     Agraph_t *G = agopen(name, type, 0);
@@ -339,6 +353,8 @@ Agraph_t *bipartite_graph(char *name, Agdesc_t type)
     return G;
 }
 
+// create a tree with # of levels specificed by levels
+// calls a recursive function to create
 Agraph_t *create_tree(char *name, Agdesc_t type, int levels)
 {
     Agraph_t *G = agopen(name, type, 0);
@@ -353,6 +369,7 @@ Agraph_t *create_tree(char *name, Agdesc_t type, int levels)
     return G;
 }
 
+// recursive function to create the rest of the tree
 Agraph_t *tree_recurse(Agraph_t *G, Agnode_t *root, int level, int *index)
 {
     if (level == 0)
@@ -372,6 +389,7 @@ Agraph_t *tree_recurse(Agraph_t *G, Agnode_t *root, int level, int *index)
     return G;
 }
 
+// create a square grid
 Agraph_t *create_square(char *name, Agdesc_t type, int num_nodes)
 {
     Agraph_t *G = agopen(name, type, 0);
