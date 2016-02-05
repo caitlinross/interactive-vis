@@ -190,16 +190,22 @@ Agraph_t *class_graph(char *name, Agdesc_t type, int **data)
 {
     Agraph_t *G = agopen(name, type, 0);
     Agnode_t *root = agnode(G, "Interactive Vis Students", 1);
+    agsafeset(root, "color", "plum", "white");
     Agraph_t *before_RPI = agsubg(G, "before RPI", 1);
     Agraph_t *dorm = agsubg(G, "Roommates", 1);
     Agraph_t *ds = agsubg(G, "Data Structures", 1);
     Agraph_t *from_RPI = agsubg(G, "From RPI", 1);
     Agraph_t *today = agsubg(G, "this class", 1);
     Agnode_t *bR = agnode(before_RPI, "Knew before RPI", 1);
+    agsafeset(bR, "color", "aquamarine", "white");
     Agnode_t *dor = agnode(dorm, "Met as roommates", 1);
+    agsafeset(dor, "color", "pink", "white");
     Agnode_t *d = agnode(ds, "Met in Data Structures", 1);
+    agsafeset(d, "color", "violet", "white");
     Agnode_t *fR = agnode(from_RPI, "Met at RPI", 1);
+    agsafeset(fR, "color", "skyblue", "white");
     Agnode_t *t = agnode(today, "Met in this class", 1);
+    agsafeset(t, "color", "seagreen1", "white");
     agedge(G, root, bR, "", 1);
     agedge(G, root, dor, "", 1);
     agedge(G, root, d, "", 1);
@@ -333,11 +339,13 @@ Agraph_t *bipartite_graph(char *name, Agdesc_t type)
         if (r < .5)
         {
             n1[i1] = agnode(g1, tmp, 1);
+            agsafeset(n1[i1], "color", "crimson", "white");
             i1++;
         }
         else
         {
             n2[i2] = agnode(g2, tmp, 1);
+            agsafeset(n2[i2], "color", "darkorchid", "white");
             i2++;
         }
     }
