@@ -58,8 +58,8 @@
             .range(d3.range(11).map(function(d) { return "q" + d + "-11"; }));
 
         // create the SVG
-        var svg = d3.select("body").selectAll("svg")
-            .data(d3.range(2))
+        var localsvg = d3.select("body").select("svg")
+            .data(d3.range(1))
             .enter().append("svg")
             .attr("width", width)
             .attr("height", height)
@@ -67,17 +67,31 @@
             .append("g")
             .attr("transform", "translate(" + ((width - cellSize * 53) / 2) + "," + (height - cellSize * 7 - 1) + ")");
         // ^ use last line to create correct number of rows and cols
+        var remotesvg = d3.select("body").select("svg")
+            .data(d3.range(1))
+            .enter().append("svg")
+            .attr("width", width)
+            .attr("height", height)
+            .attr("class", "RdYlGn")
+            .append("g")
+            .attr("transform", "translate(" + ((width - cellSize * 53) / 2) + "," + (height - cellSize * 7 - 1) + ")");
 
         // create text for names of row sections 
-        svg.append("text")
+        localsvg.append("text")
             .attr("transform", "translate(-6," + cellSize * 3.5 + ")rotate(-90)")
             .style("text-anchor", "middle")
-            .text(function(d) { 
-                    if (d == 0) { return "WAN Site 1 (local)";}
-                    else { return "WAN Site 2 (remote)";} });
+            .text("WAN Site 1 (local)");
+
+        remotesvg.append("text")
+            .attr("transform", "translate(-6," + cellSize * 3.5 + ")rotate(-90)")
+            .style("text-anchor", "middle")
+            .text("WAN Site 2 (remote)");
+            //.text(function(d) { 
+            //        if (d == 0) { return "WAN Site 1 (local)";}
+            //        else { return "WAN Site 2 (remote)";} });
 
         // create rectangles for days
-        var rect = svg.selectAll(".day")
+        var rect1 = localsvg.selectAll(".day")
             .data(createDays()) 
             .enter().append("rect")
             .attr("class", "day")
@@ -87,13 +101,22 @@
             .attr("y", function(d) { return getDayPos(d) * cellSize; })
             .datum(format);
 
+        var rect2 = remotesvg.selectAll(".day")
+            .data(createDays()) 
+            .enter().append("rect")
+            .attr("class", "day")
+            .attr("width", cellSize)
+            .attr("height", cellSize)
+            .attr("x", function(d) { return getWeekPos(d) * cellSize; })
+            .attr("y", function(d) { return getDayPos(d) * cellSize; })
+            .datum(format);
         //rect.append("title")
           //  .text(function(d) { console.log(d); return d; });
 
-        svg.selectAll(".month")
-            .data(createDays()) 
-            .enter().append("path")
-            .attr("class", "month");
+        //svg.selectAll(".month")
+        //    .data(createDays()) 
+        //    .enter().append("path")
+        //    .attr("class", "month");
            // .attr("d", monthPath);
 
         // read in the data (in csv format)
@@ -102,12 +125,19 @@
 
             var data = d3.nest()
                 .key(function(d) { return d.timestamp; })
-                .key(function(d) { return d.site; })
+                .key(function(d) { 
+                    if (d.site == "local") { return 0; }
+                    else { return 1; } })
                 .rollup(function(d) { return d[0].util; })
                 .map(csv);
 
-                rect.filter(function(d) { return d in d3.keys(data); })
-                .attr("class", function(d, i) { console.log(i); console.log(data[d].local); return "day " + color(data[d].local); })
+                rect1.filter(function(d) { return d in d3.keys(data); })
+                .attr("class", function(d) { return "day " + color(data[d][0]); })
+                .select("title")
+                .text(function(d) {  return d + ": " + (data[d]); });
+
+                rect2.filter(function(d) { console.log(d); console.log(d in d3.keys(data)); return d in d3.keys(data); })
+                .attr("class", function(d) { console.log(d); console.log(data[d][1]); return "day " + color(data[d][1]); })
                 .select("title")
                 .text(function(d) { console.log(d); return d + ": " + (data[d]); });
         });
