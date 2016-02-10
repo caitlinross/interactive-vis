@@ -25,6 +25,49 @@
                 stroke-width: 2px;
             }
 
+            .sched {
+                font: 11px sans-serif;
+            }
+
+            .graphTitle {
+                font: 22px sans-serif;
+                text-align: center;
+            }
+
+            div.selectionmenu {
+                position: relative;
+                top: 400px;
+                left: 50px;
+                width: 500px;
+                height: 50px;
+                border: 3px solid #000000;
+                font: 14px sans-serif;
+            }
+
+            div.scheds {
+                position: absolute;
+                top: 10px;
+                left: 10px;
+                width: 120px;
+                height: 100px;
+            }
+
+            div.times {
+                position: absolute;
+                top: 10px;
+                left: 350px;
+                width: 150px;
+                height: 100px;
+            }
+
+            div.metrics {
+                position: absolute;
+                top: 10px;
+                left: 150px;
+                width: 100px;
+                height: 100px;
+            }
+
             .RdYlGn .q0-11{fill:rgb(5,48,97)}
             .RdYlGn .q1-11{fill:rgb(33,102,172)}
             .RdYlGn .q2-11{fill:rgb(67,147,195)}
@@ -46,7 +89,7 @@
         // change size of cells and of area the cells are shown in
         var width = 1200,
             height = 150,
-            cellSize = 20; // cell size
+            cellSize = 20; 
 
         // format the percentages and data for the html tags
         var percent = d3.format(".1%"),
@@ -57,6 +100,11 @@
             .domain([0, 1])
             .range(d3.range(11).map(function(d) { return "q" + d + "-11"; }));
 
+        var titlePar = d3.select("body")
+            .append("p")
+            .attr("class", "graphTitle")
+            .text("Client Utilization rate per day for FCFS scheduling");
+
         // create the SVG
         var localsvg = d3.select("body").select("svg")
             .data(d3.range(1))
@@ -66,7 +114,7 @@
             .attr("class", "RdYlGn")
             .append("g")
             .attr("transform", "translate(" + ((width - cellSize * 53) / 2) + "," + (height - cellSize * 7 - 1) + ")");
-        // ^ use last line to create correct number of rows and cols
+       
         var remotesvg = d3.select("body").select("svg")
             .data(d3.range(1))
             .enter().append("svg")
@@ -86,9 +134,6 @@
             .attr("transform", "translate(-6," + cellSize * 3.5 + ")rotate(-90)")
             .style("text-anchor", "middle")
             .text("WAN Site 2 (remote)");
-            //.text(function(d) { 
-            //        if (d == 0) { return "WAN Site 1 (local)";}
-            //        else { return "WAN Site 2 (remote)";} });
 
         // create rectangles for days
         var rect1 = localsvg.selectAll(".day")
@@ -110,52 +155,52 @@
             .attr("x", function(d) { return getWeekPos(d) * cellSize; })
             .attr("y", function(d) { return getDayPos(d) * cellSize; })
             .datum(format);
-        //rect.append("title")
-          //  .text(function(d) { console.log(d); return d; });
 
-        //svg.selectAll(".month")
-        //    .data(createDays()) 
-        //    .enter().append("path")
-        //    .attr("class", "month");
-           // .attr("d", monthPath);
+        var loadData = function() {
+            var sched = document.getElementById('sched_policy').selectedOptions[0].text;
+            var dataFile = sched + '.csv';
+            var metric = document.getElementById('metric').selectedOptions[0].value;
 
-        // read in the data (in csv format)
-        d3.csv("test.csv", function(error, csv) {
-            if (error) throw error;
+            var pageTitle = ""
+            if (metric == 0)
+            { pageTitle += "Client Utilization Rate"; }
+            else if (metric == 1)
+            { pageTitle += "Job Response Time"; }
+            if (metric == 2)
+            { pageTitle += "Data Movement Overhead"; }
+            pageTitle += " for " + sched + " scheduling";
 
-            var data = d3.nest()
-                .key(function(d) { return d.timestamp; })
-                .key(function(d) { 
-                    if (d.site == "local") { return 0; }
-                    else { return 1; } })
-                .rollup(function(d) { return d[0].util; })
-                .map(csv);
+            titlePar.text(pageTitle);
 
-                rect1.filter(function(d) { return d in d3.keys(data); })
-                .attr("class", function(d) { return "day " + color(data[d][0]); })
-                .select("title")
-                .text(function(d) {  return d + ": " + (data[d]); });
+            // read in the data (in csv format)
+            d3.csv(dataFile, function(error, csv) {
+                if (error) throw error;
 
-                rect2.filter(function(d) { console.log(d); console.log(d in d3.keys(data)); return d in d3.keys(data); })
-                .attr("class", function(d) { console.log(d); console.log(data[d][1]); return "day " + color(data[d][1]); })
-                .select("title")
-                .text(function(d) { console.log(d); return d + ": " + (data[d]); });
-        });
+                var data = d3.nest()
+                    .key(function(d) { return d.timestamp; })
+                    .key(function(d) { 
+                        if (d.site == "local") { return 0; }
+                        else { return 1; } })
+                    .rollup(function(d) { 
+                        if (metric == 0) { return d[0].util; }
+                        else if (metric == 1) { return d[0].resp; }
+                        else { return d[0].dmo; } })
+                    .map(csv);
 
-        //function monthPath(t0) {
-        //    console.log(t0);
-        //    var t1 = 29,
-        //        d0 = 0, w0 = 0,
-        //        d1 = 29, w1 = 5;
-        //    return "M" + (w0 + 1) * cellSize + "," + d0 * cellSize
-        //        + "H" + w0 * cellSize + "V" + 7 * cellSize
-        //        + "H" + w1 * cellSize + "V" + (d1 + 1) * cellSize
-        //        + "H" + (w1 + 1) * cellSize + "V" + 0
-        //        + "H" + (w0 + 1) * cellSize + "Z";
-        //}
+                    rect1.filter(function(d) { return d in d3.keys(data); })
+                    .attr("class", function(d) { return "day " + color(data[d][0]); })
+                    .select("title")
+                    .text(function(d) {  return d + ": " + (data[d]); });
+
+                    rect2.filter(function(d) { return d in d3.keys(data); })
+                    .attr("class", function(d) { return "day " + color(data[d][1]); })
+                    .select("title")
+                    .text(function(d) { return d + ": " + (data[d]); });
+            });
+        };
 
         function createDays() {
-            var alldays = d3.range(30); 
+            var alldays = d3.range(20*7); 
             return alldays;
         }
 
@@ -168,6 +213,33 @@
         }
 
         d3.select(self.frameElement).style("height", "2910px");
-        </script>
+    </script>
+    <div class="selectionmenu">
+        <div class="scheds" id="schedselect">
+            Scheduling policy:</br> 
+            <select onchange="loadData()" id="sched_policy">
+                <option>FCFS</option>
+                <option>Best-Fit</option>
+                <option>Greedy</option>
+                <option>Proxy-Aware</option>
+            </select>
+        </div>
+        <div class="times" id="timeselect">
+            Time granularity:</br> 
+            <select id="time_gran">
+                <option value="0">Hours</option>
+                <option value="1">Days</option>
+                <option value="2">Weeks</option>
+            </select>
+        </div>
+        <div class="metrics" id="metricselect">
+            Metric:</br> 
+            <select onchange="loadData()" id="metric">
+                <option value="0">Client Utilization</option>
+                <option value="1">Job Response Time</option>
+                <option value="2">Data Movement Overhead</option>
+            </select>
+        </div>
+    </div>
     </body>
 </html>
