@@ -50,7 +50,7 @@
 
         // format the percentages and data for the html tags
         var percent = d3.format(".1%"),
-            format = d3.time.format("%Y-%m-%d");
+            format = d3.format("d");
 
         // get correct heat map color
         var color = d3.scale.quantize()
@@ -76,24 +76,25 @@
                     if (d == 0) { return "WAN Site 1 (local)";}
                     else { return "WAN Site 2 (remote)";} });
 
+        // create rectangles for days
         var rect = svg.selectAll(".day")
-            .data(function(d) { console.log(d); return d3.time.days(new Date(d, 0, 1), new Date(d + 1, 0, 1)); })
+            .data(createDays()) 
             .enter().append("rect")
             .attr("class", "day")
             .attr("width", cellSize)
             .attr("height", cellSize)
-            .attr("x", function(d) { return d3.time.weekOfYear(d) * cellSize; })
-            .attr("y", function(d) { return d.getDay() * cellSize; })
+            .attr("x", function(d) { return getWeekPos(d) * cellSize; })
+            .attr("y", function(d) { return getDayPos(d) * cellSize; })
             .datum(format);
 
-        rect.append("title")
-            .text(function(d) { return d; });
+        //rect.append("title")
+          //  .text(function(d) { console.log(d); return d; });
 
         svg.selectAll(".month")
-            .data(function(d) { return d3.time.months(new Date(d, 0, 1), new Date(d + 1, 0, 1)); })
+            .data(createDays()) 
             .enter().append("path")
-            .attr("class", "month")
-            .attr("d", monthPath);
+            .attr("class", "month");
+           // .attr("d", monthPath);
 
         // read in the data (in csv format)
         d3.csv("test.csv", function(error, csv) {
@@ -101,24 +102,39 @@
 
             var data = d3.nest()
                 .key(function(d) { return d.timestamp; })
+                .key(function(d) { return d.site; })
                 .rollup(function(d) { return d[0].util; })
                 .map(csv);
 
-                rect.filter(function(d) { return d in data; })
-                .attr("class", function(d) { return "day " + color(data[d]); })
+                rect.filter(function(d) { return d in d3.keys(data); })
+                .attr("class", function(d, i) { console.log(i); console.log(data[d].local); return "day " + color(data[d].local); })
                 .select("title")
-                .text(function(d) { return d + ": " + percent(data[d]); });
+                .text(function(d) { console.log(d); return d + ": " + (data[d]); });
         });
 
-        function monthPath(t0) {
-            var t1 = new Date(t0.getFullYear(), t0.getMonth() + 1, 0),
-                d0 = t0.getDay(), w0 = d3.time.weekOfYear(t0),
-                d1 = t1.getDay(), w1 = d3.time.weekOfYear(t1);
-            return "M" + (w0 + 1) * cellSize + "," + d0 * cellSize
-                + "H" + w0 * cellSize + "V" + 7 * cellSize
-                + "H" + w1 * cellSize + "V" + (d1 + 1) * cellSize
-                + "H" + (w1 + 1) * cellSize + "V" + 0
-                + "H" + (w0 + 1) * cellSize + "Z";
+        //function monthPath(t0) {
+        //    console.log(t0);
+        //    var t1 = 29,
+        //        d0 = 0, w0 = 0,
+        //        d1 = 29, w1 = 5;
+        //    return "M" + (w0 + 1) * cellSize + "," + d0 * cellSize
+        //        + "H" + w0 * cellSize + "V" + 7 * cellSize
+        //        + "H" + w1 * cellSize + "V" + (d1 + 1) * cellSize
+        //        + "H" + (w1 + 1) * cellSize + "V" + 0
+        //        + "H" + (w0 + 1) * cellSize + "Z";
+        //}
+
+        function createDays() {
+            var alldays = d3.range(30); 
+            return alldays;
+        }
+
+        function getWeekPos(t) {
+            return Math.floor(t/7);
+        }
+
+        function getDayPos(t) {
+            return t % 7;
         }
 
         d3.select(self.frameElement).style("height", "2910px");
