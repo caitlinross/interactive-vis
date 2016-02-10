@@ -12,12 +12,12 @@ def writeFile(f):
                 f.write("local,")
                 r0 = random.normalvariate(.4, .2)
                 r1 = random.normalvariate(.1, .1)
-                r2 = random.normalvariate(.3, .3)
+                r2 = random.normalvariate(.3, .3)*10
             else:
                 f.write("remote,")
                 r0 = random.normalvariate(.7, .2)
                 r1 = random.normalvariate(.5, .2)
-                r2 = random.normalvariate(.6, .2)
+                r2 = random.normalvariate(.6, .2)*10
 
             f.write(str(day)+",")
             f.write(str(abs(r0)) +","+  str(abs(r1)) +","+ str(abs(r2))  + "\n") 

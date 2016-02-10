@@ -99,6 +99,9 @@
         var color = d3.scale.quantize()
             .domain([0, 1])
             .range(d3.range(11).map(function(d) { return "q" + d + "-11"; }));
+        var jrcolor = d3.scale.quantize()
+            .domain([0, 20])
+            .range(d3.range(11).map(function(d) { return "q" + d + "-11"; }));
 
         var titlePar = d3.select("body")
             .append("p")
@@ -188,12 +191,16 @@
                     .map(csv);
 
                     rect1.filter(function(d) { return d in d3.keys(data); })
-                    .attr("class", function(d) { return "day " + color(data[d][0]); })
+                    .attr("class", function(d) { 
+                        if (metric == 1) { return "day " + jrcolor(data[d][0]); }
+                        else { return "day " + color(data[d][0]); } })
                     .select("title")
                     .text(function(d) {  return d + ": " + (data[d]); });
 
                     rect2.filter(function(d) { return d in d3.keys(data); })
-                    .attr("class", function(d) { return "day " + color(data[d][1]); })
+                    .attr("class", function(d) { 
+                        if (metric == 1) { return "day " + jrcolor(data[d][0]); }
+                        else { return "day " + color(data[d][1]); } })
                     .select("title")
                     .text(function(d) { return d + ": " + (data[d]); });
             });
