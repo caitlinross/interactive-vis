@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>D3 Test</title>
+        <style>
+            body {
+                font: 10px sans-serif;
+                shape-rendering: crispEdges;
+            }
+
+            .hour {
+                fill: #fff;
+                stroke: #ccc;
+            }
+
+            .day {
+                fill: #fff;
+                stroke: #ccc;
+            }
+
+            .month {
+                fill: none;
+                stroke: #000;
+                stroke-width: 2px;
+            }
+
+            .RdYlGn .q0-11{fill:rgb(5,48,97)}
+            .RdYlGn .q1-11{fill:rgb(33,102,172)}
+            .RdYlGn .q2-11{fill:rgb(67,147,195)}
+            .RdYlGn .q3-11{fill:rgb(146,197,222)}
+            .RdYlGn .q4-11{fill:rgb(209,229,240)}
+            .RdYlGn .q5-11{fill:rgb(247,247,247)}
+            .RdYlGn .q6-11{fill:rgb(253,219,199)}
+            .RdYlGn .q7-11{fill:rgb(244,165,130)}
+            .RdYlGn .q8-11{fill:rgb(214,96,77)}
+            .RdYlGn .q9-11{fill:rgb(178,24,43)}
+            .RdYlGn .q10-11{fill:rgb(103,0,31)}
+        </style>
+        <script type="text/javascript" src="d3/d3.js"></script>
+    </head>
+    <body>
+        <script type="text/javascript">
+        // Adapted from http://bl.ocks.org/mbostock/4063318#index.html by Mike Bostock 
+
+        // change size of cells and of area the cells are shown in
+        var width = 1200,
+            height = 150,
+            cellSize = 20; // cell size
+
+        // format the percentages and data for the html tags
+        var percent = d3.format(".1%"),
+            format = d3.time.format("%Y-%m-%d");
+
+        // get correct heat map color
+        var color = d3.scale.quantize()
+            .domain([0, 1])
+            .range(d3.range(11).map(function(d) { return "q" + d + "-11"; }));
+
+        // create the SVG
+        var svg = d3.select("body").selectAll("svg")
+            .data(d3.range(2))
+            .enter().append("svg")
+            .attr("width", width)
+            .attr("height", height)
+            .attr("class", "RdYlGn")
+            .append("g")
+            .attr("transform", "translate(" + ((width - cellSize * 53) / 2) + "," + (height - cellSize * 7 - 1) + ")");
+        // ^ use last line to create correct number of rows and cols
+
+        // create text for names of row sections 
+        svg.append("text")
+            .attr("transform", "translate(-6," + cellSize * 3.5 + ")rotate(-90)")
+            .style("text-anchor", "middle")
+            .text(function(d) { 
+                    if (d == 0) { return "WAN Site 1 (local)";}
+                    else { return "WAN Site 2 (remote)";} });
+
+        var rect = svg.selectAll(".day")
+            .data(function(d) { console.log(d); return d3.time.days(new Date(d, 0, 1), new Date(d + 1, 0, 1)); })
+            .enter().append("rect")
+            .attr("class", "day")
+            .attr("width", cellSize)
+            .attr("height", cellSize)
+            .attr("x", function(d) { return d3.time.weekOfYear(d) * cellSize; })
+            .attr("y", function(d) { return d.getDay() * cellSize; })
+            .datum(format);
+
+        rect.append("title")
+            .text(function(d) { return d; });
+
+        svg.selectAll(".month")
+            .data(function(d) { return d3.time.months(new Date(d, 0, 1), new Date(d + 1, 0, 1)); })
+            .enter().append("path")
+            .attr("class", "month")
+            .attr("d", monthPath);
+
+        // read in the data (in csv format)
+        d3.csv("test.csv", function(error, csv) {
+            if (error) throw error;
+
+            var data = d3.nest()
+                .key(function(d) { return d.timestamp; })
+                .rollup(function(d) { return d[0].util; })
+                .map(csv);
+
+                rect.filter(function(d) { return d in data; })
+                .attr("class", function(d) { return "day " + color(data[d]); })
+                .select("title")
+                .text(function(d) { return d + ": " + percent(data[d]); });
+        });
+
+        function monthPath(t0) {
+            var t1 = new Date(t0.getFullYear(), t0.getMonth() + 1, 0),
+                d0 = t0.getDay(), w0 = d3.time.weekOfYear(t0),
+                d1 = t1.getDay(), w1 = d3.time.weekOfYear(t1);
+            return "M" + (w0 + 1) * cellSize + "," + d0 * cellSize
+                + "H" + w0 * cellSize + "V" + 7 * cellSize
+                + "H" + w1 * cellSize + "V" + (d1 + 1) * cellSize
+                + "H" + (w1 + 1) * cellSize + "V" + 0
+                + "H" + (w0 + 1) * cellSize + "Z";
+        }
+
+        d3.select(self.frameElement).style("height", "2910px");
+        </script>
+    </body>
+</html>
