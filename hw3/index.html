@@ -34,9 +34,13 @@
                 text-align: center;
             }
 
+            .legend {
+                fill: #fff;
+            }
+
             div.selectionmenu {
                 position: relative;
-                top: 400px;
+                top: 470px;
                 left: 50px;
                 width: 500px;
                 height: 50px;
@@ -124,16 +128,17 @@
             .attr("width", width)
             .attr("height", height)
             .attr("class", "RdYlGn")
+            .attr("id", "rmSite")
             .append("g")
             .attr("transform", "translate(" + ((width - cellSize * 53) / 2) + "," + (height - cellSize * 7 - 1) + ")");
 
         // create text for names of row sections 
-        localsvg.append("text")
+        var localText = localsvg.append("text")
             .attr("transform", "translate(-6," + cellSize * 3.5 + ")rotate(-90)")
             .style("text-anchor", "middle")
             .text("WAN Site 1 (local)");
 
-        remotesvg.append("text")
+        var remoteText = remotesvg.append("text")
             .attr("transform", "translate(-6," + cellSize * 3.5 + ")rotate(-90)")
             .style("text-anchor", "middle")
             .text("WAN Site 2 (remote)");
@@ -159,6 +164,43 @@
             .attr("y", function(d) { return getDayPos(d) * cellSize; })
             .datum(format);
 
+        var keyArea = d3.select("body").select("svg")
+            .data(d3.range(1))
+            .enter().append("svg")
+            .attr("width", width)
+            .attr("height", 70)
+            .attr("class", "RdYlGn")
+            .attr("id", "keyArea")
+            .append("g");
+            //.attr("transform", "translate(70,9)";
+    
+        var keyText = keyArea.append("text")
+            .attr("transform", "translate(50, 30)")
+       //     .style("text-anchor", "middle")
+            .text("Key: ");
+
+        var keyLabelBegin = keyArea.append("text")
+            .attr("transform", "translate(98, 55)")
+            .text("");
+
+        var keyLabelEnd = keyArea.append("text")
+            .attr("transform", "translate(424, 55)")
+            .text("");
+
+        var key = keyArea.selectAll(".legend")
+            .data(d3.range(11))
+            .enter().append("rect")
+            .attr("class", "legend")
+            .attr("width", cellSize *1.5)
+            .attr("height", cellSize *1.5)
+            .attr("x", function(d) { return 100 + d * cellSize * 1.5; })
+            .attr("y", 10);
+    
+        key.data(d3.range(11))
+            .attr("class", function(d) {return color(d/11);})
+            .select("title")
+            .text(function(d) {return d + ": " + (d/100); });
+
         var loadData = function() {
             var sched = document.getElementById('sched_policy').selectedOptions[0].text;
             var dataFile = sched + '.csv';
@@ -166,14 +208,35 @@
 
             var pageTitle = ""
             if (metric == 0)
-            { pageTitle += "Client Utilization Rate"; }
+            { remotesvg.active = true; pageTitle += "Client Utilization Rate"; }
             else if (metric == 1)
-            { pageTitle += "Job Response Time"; }
+            { remotesvg.active = false; pageTitle += "Job Response Time"; }
             if (metric == 2)
-            { pageTitle += "Data Movement Overhead"; }
+            { remotesvg.active = true; pageTitle += "Data Movement Overhead"; }
             pageTitle += " for " + sched + " scheduling";
 
             titlePar.text(pageTitle);
+
+            // hide second site for job resp time
+            var newOpacity = remotesvg.active ? 1 : 0;
+            d3.select("#rmSite").style("opacity", newOpacity);
+            if (remotesvg.active) { 
+                localText.text("WAN Site 1 (local)");
+                remoteText.text("WAN Site 2 (remote)");
+            }
+            else {
+                localText.text("Full System");
+            }
+
+            if (metric == 1)
+            {
+                keyLabelBegin.text("0");
+                keyLabelEnd.text("20");
+            }
+            else {
+                keyLabelBegin.text("0");
+                keyLabelEnd.text("1");
+            }
 
             // read in the data (in csv format)
             d3.csv(dataFile, function(error, csv) {
