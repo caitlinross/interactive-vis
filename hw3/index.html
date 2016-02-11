@@ -40,11 +40,20 @@
 
             div.selectionmenu {
                 position: relative;
-                top: 470px;
+                top: 500px;
                 left: 50px;
                 width: 500px;
                 height: 50px;
                 border: 3px solid #000000;
+                font: 14px sans-serif;
+            }
+
+            div.explanation {
+                position: relative;
+                top: 520px;
+                left: 50px;
+                width: 500px;
+                height: 50px;
                 font: 14px sans-serif;
             }
 
@@ -84,9 +93,9 @@
             .RdYlGn .q9-11{fill:rgb(178,24,43)}
             .RdYlGn .q10-11{fill:rgb(103,0,31)}
         </style>
-        <script type="text/javascript" src="d3/d3.js"></script>
     </head>
     <body>
+        <script type="text/javascript" src="d3/d3.js"></script>
         <script type="text/javascript">
         // Adapted from http://bl.ocks.org/mbostock/4063318#index.html by Mike Bostock 
 
@@ -107,13 +116,13 @@
             .domain([0, 20])
             .range(d3.range(11).map(function(d) { return "q" + d + "-11"; }));
 
-        var titlePar = d3.select("body")
-            .append("p")
+        var titlePar = d3.selectAll("body")
+            .append("H1")
             .attr("class", "graphTitle")
-            .text("Client Utilization rate per day for FCFS scheduling");
+            .text("Select options below to view data");
 
         // create the SVG
-        var localsvg = d3.select("body").select("svg")
+        var localsvg = d3.selectAll("body").select("svg")
             .data(d3.range(1))
             .enter().append("svg")
             .attr("width", width)
@@ -122,7 +131,7 @@
             .append("g")
             .attr("transform", "translate(" + ((width - cellSize * 53) / 2) + "," + (height - cellSize * 7 - 1) + ")");
        
-        var remotesvg = d3.select("body").select("svg")
+        var remotesvg = d3.selectAll("body").select("svg")
             .data(d3.range(1))
             .enter().append("svg")
             .attr("width", width)
@@ -164,7 +173,7 @@
             .attr("y", function(d) { return getDayPos(d) * cellSize; })
             .datum(format);
 
-        var keyArea = d3.select("body").select("svg")
+        var keyArea = d3.selectAll("body").select("svg")
             .data(d3.range(1))
             .enter().append("svg")
             .attr("width", width)
@@ -201,6 +210,11 @@
             .select("title")
             .text(function(d) {return d + ": " + (d/100); });
 
+        //var expPar = d3.select("body")
+        //    .append("p")
+        //    .attr("class", "explanation")
+        //    .text("Explanation: ");
+
         var loadData = function() {
             var sched = document.getElementById('sched_policy').selectedOptions[0].text;
             var dataFile = sched + '.csv';
@@ -208,11 +222,11 @@
 
             var pageTitle = ""
             if (metric == 0)
-            { remotesvg.active = true; pageTitle += "Client Utilization Rate"; }
+            { remotesvg.active = true; pageTitle += "Client Utilization Rate per day"; }
             else if (metric == 1)
-            { remotesvg.active = false; pageTitle += "Job Response Time"; }
+            { remotesvg.active = false; pageTitle += "Job Response Time per day"; }
             if (metric == 2)
-            { remotesvg.active = true; pageTitle += "Data Movement Overhead"; }
+            { remotesvg.active = true; pageTitle += "Data Movement Overhead per day"; }
             pageTitle += " for " + sched + " scheduling";
 
             titlePar.text(pageTitle);
@@ -311,6 +325,17 @@
                 <option value="2">Data Movement Overhead</option>
             </select>
         </div>
+    </div>
+    <div class="explanation" id="exp">
+        <p> <b>NOTE</b>: Currently this uses randomly generated data instead of actual simulation data.</br></br> 
+        <b>FCFS</b>: First come first served scheduling; schedule any task to any client at any site </br>
+        <b>Best-fit</b>: remote site computes only the most computationally expensive (relative to I/O) task type </br>
+        <b>Greedy</b>: remote site computes most computationally expensive task available at that time </br>
+        <b>Proxy-Aware</b>: map full jobs to some proxy server and schedule tasks of that job to clients at the site containing that proxy server</br>
+        </br></br>
+        <b>Client utilization</b>: the average client utilization rate per day for all clients at a site </br>
+        <b>Data movement overhead</b>: the percentage of time spent transferring data relative to total time in compute and data transfer.  This is averaged for all clients at a given site per day </br>
+        <b>Job response time</b>: the amount of time it takes from job submission to job completion.  This is computed for the entire system.  It is the average job response time per day 
     </div>
     </body>
 </html>
