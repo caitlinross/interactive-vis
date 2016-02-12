@@ -98,15 +98,21 @@ The purpose of this assignment is to use D3: Data-Driven Documents\footnote{http
 \section{Design}
 When first looking at examples on the D3 website, I came across a calendar example by Mike Bostock\footnote{http://bl.ocks.org/mbostock/4063318} that I really liked.  The example uses this design to visualize Dow Jones Historical data.  I realized that this would be a good way to view how some metrics measured during my simulations change over simulated time.  My simulation looks at how jobs (which are broken up into tasks) are scheduled at clients at two wide area network sites.  There are four possible scheduling policies.  For my visualization, I chose 3 metrics to look at: client utilization, job response time, and data movement overhead.  
 
-\color{red}TODO: Add storyboard pictures\color{black}
+Figures \ref{fig:drawing1} and \ref{fig:drawing2} show two storyboard type drawings I used to plan out my visualization.  They show either one or two groups of boxes, where each box represents a day.  The boxes are colored in according to a heat map based on the data provided for the chosen scheduling policy and the metric.  Figure \ref{fig:drawing1} shows an extra feature that is not yet implemented.  This shows that a user has clicked on a square/day, which results in a darker outline for that square and the corresponding square for the other site.  Then on the right, some additional information can be printed about that the simulation at that point in the simulation.
 
+\begin{figure}[ht]
+\centering
+	\includegraphics[width=6in]{drawing1.png}
+\caption{Storyboard drawing}
+\label{fig:drawing1}
+\end{figure}
 
-%\begin{figure}[ht]
-%	\centering
-%		\includegraphics[width=6in]{awesim.png}
-%	\caption{MG-RAST infrastructure drawn with GraphViz}
-%	\label{fig:awesim}
-%\end{figure}
+\begin{figure}[ht]
+\centering
+	\includegraphics[width=6in]{drawing2.png}
+\caption{Storyboard drawing}
+\label{fig:drawing2}
+\end{figure}
 
 \section{Implementation}
 I started with the code provided for the calendar example and adapted that to my needs.  The code sets up an 11 color heat map.  Lower values are more blue and larger values are more red.  Several scalable vector graphics (SVG) objects are created in order to create the parts of the visualization.  There is one SVG for each site, as well as the key.  Below the key there are drop down boxes that allow the scheduling policy and metric to be chosen for viewing.  Upon new selections in either box, a \texttt{loadData()} function is called that loads the appropriate CSV file (there's one file for each scheduling policy) or chooses which metric to pull from the given CSV file.  Currently the visualization is using data generated randomly (though somewhat loosely based on patterns I expect to see).  
@@ -143,7 +149,7 @@ Overall, D3 seems like a really powerful tool for creating a lot of really aweso
 \section{Future Work}
 I think I will continue to adjust this visualization for use in my work.  My next step is to add time series data collection to my simulation, so I can actually view real data to determine if this visualization will actually be useful to me.  One other idea I had was to provide a drop down box that allows for the data to be viewed on different time scales.  For example, combine the data for each 7 days into one block, so that each block represents a week.  This could be more useful in a simulation with a much longer simulated runtime. I might also change this so that you can display results from the different scheduling policies at the same time, that way the data for the different scheduling policies for a given metric can be easily compared.  
 
-I think I can also continue to refine this idea for displaying data about simulation engine properties.  For instance, each simulated entity is represented by a logical process (LP), so time series data could be collected on each LP and displayed like this.  This could possibly show if some LP is behaving oddly (in comparison to others) at some point during the simulation.  Another case this could be used with is for rollbacks in our parallel simulations.  We process simulation events optimistically so it's possible that events can be computed out of order.  When the simulator detects this, it rolls back and then resumes future processing.  Some models have large amounts of roll backs, while others don't.  A visualization of rollbacks in the simulations could help us to make changes that result in less out of order computation as well as possibly better understand why some models results in so many rollbacks while others do not.  
+I think I can also continue to refine this idea for displaying data about simulation engine properties.  For instance, each simulated entity is represented by a logical process (LP), so time series data could be collected on each LP and displayed like this.  This could possibly show if some LP is behaving oddly (in comparison to others) at some point during the simulation.  Another case this could be used with is for rollbacks in our parallel simulations.  We process simulation events optimistically so it's possible that events can be computed out of order.  When the simulator detects this, it rolls back and then resumes future processing.  Some models have large amounts of rollbacks, while others don't.  A visualization of rollbacks in the simulations could help us to make changes that result in less out of order computation as well as possibly better understand why some models results in so many rollbacks while others do not.  
 
 
 %\bibliography{main}
