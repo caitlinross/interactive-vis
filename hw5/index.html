@@ -20,59 +20,52 @@
                 "#fb9a99","#e31a1c","#fdbf6f","#ff7f00",
                 "#cab2d6","#6a3d9a","#ffff99","#b15928"]);
 
-        var loadData = function(){
-            // load csv file and create the chart
-            d3.csv('data/alldata-batch.csv', function(data) {
-                var color = function(d) { return colorgen(d.batch); };
-                //var parcoords = d3.parcoords()("#batch")
-                pc1 = d3.parcoords()("#batch")
-                    .data(data)
-                    //.hideAxis(["Total GVT Computations"])
-                    .color(color)
-                    .alpha(0.25)
-                    .composite("darker")
-                    .margin({ top: 54, left: 50, bottom: 12, right: 0 })
-                    .mode("queue")
-                    .render()
-                    .reorderable()
-                    .shadows()
-                    .brushMode("1D-axes");  // enable brushing
+        // load csv file and create the chart
+        d3.csv('data/alldata-batch.csv', function(data) {
+            var color = function(d) { return colorgen(d.batch); };
+            //var parcoords = d3.parcoords()("#batch")
+            pc1 = d3.parcoords()("#batch")
+                .data(data)
+                .color(color)
+                .alpha(0.25)
+                .composite("darker")
+                .margin({ top: 54, left: 50, bottom: 12, right: 0 })
+                .mode("queue")
+                .autoscale()
+                .render()
+                .createAxes()
+                .reorderable()
+                .shadows()
+                .brushMode("1D-axes");  // enable brushing
 
-                //pc1.hideAxis(["Total GVT Computations"]).render()
-                //    .updateAxes();
+            pc1.svg.selectAll("text")
+                .style("font", "10px sans-serif");
 
-                pc1.svg.selectAll("text")
-                    .style("font", "10px sans-serif");
-            });
+        });
 
-            // load csv file and create the chart
-            d3.csv('data/alldata-gvt.csv', function(data) {
-                var color = function(d) { return colorgen(d.gvt); };
+        // load csv file and create the chart
+        d3.csv('data/alldata-gvt.csv', function(data) {
+            var color = function(d) { return colorgen(d.gvt); };
 
-                //var parcoords = d3.parcoords()("#gvt")
-                pc2 = d3.parcoords()("#gvt")
-                    .data(data)
-                    .color(color)
-                    .alpha(0.25)
-                    .composite("darker")
-                    .margin({ top: 54, left: 50, bottom: 12, right: 0 })
-                    .mode("queue")
-                    .render()
-                    .reorderable()
-                    .shadows()
-                    .brushMode("1D-axes");  // enable brushing
+            //var parcoords = d3.parcoords()("#gvt")
+            pc2 = d3.parcoords()("#gvt")
+                .data(data)
+                .color(color)
+                .alpha(0.25)
+                .composite("darker")
+                .margin({ top: 54, left: 50, bottom: 12, right: 0 })
+                .mode("queue")
+                .render()
+                .reorderable()
+                .shadows()
+                .brushMode("1D-axes");  // enable brushing
 
-                pc2.svg.selectAll("text")
-                    .style("font", "10px sans-serif");
-            });
-        };
-    
-        // call first so screen initially shows whole graph
-        loadData();
+            pc2.svg.selectAll("text")
+                .style("font", "10px sans-serif");
+        });
 
         // to change on changing checkboxes
-        //d3.selectAll("input").on("change", loadData());
-        var changeAxes = function(inValue){
+        var changeAxes = function(){
             var whichAxes = [];
             if (d3.select("#gvtComps").property("checked")){ 
                 whichAxes.push("Total GVT Computations");
