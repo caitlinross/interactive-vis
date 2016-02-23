@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>D3 Test</title>
+        <style>
+        </style>
+    </head>
+    <body>
+        <script type="text/javascript" src="d3.js"></script>
+        <script type="text/javascript" src="d3.parcoords.js"></script>
+        <link rel="stylesheet" type="text/css" href="d3.parcoords.css">
+        <script type="text/javascript">
+        // Adapted from https://syntagmatic.github.io/parallel-coordinates/ by Kai Chang
+        // this uses Chang's d3.parcoords javascript library that is built on top of d3 
+
+        var pc1, pc2;
+        var colorgen = d3.scale.ordinal()
+            .range(["#a6cee3","#1f78b4","#b2df8a","#33a02c",
+                "#fb9a99","#e31a1c","#fdbf6f","#ff7f00",
+                "#cab2d6","#6a3d9a","#ffff99","#b15928"]);
+
+        var loadData = function(){
+            // load csv file and create the chart
+            d3.csv('data/alldata-batch.csv', function(data) {
+                var color = function(d) { return colorgen(d.batch); };
+                //var parcoords = d3.parcoords()("#batch")
+                pc1 = d3.parcoords()("#batch")
+                    .data(data)
+                    //.hideAxis(["Total GVT Computations"])
+                    .color(color)
+                    .alpha(0.25)
+                    .composite("darker")
+                    .margin({ top: 54, left: 50, bottom: 12, right: 0 })
+                    .mode("queue")
+                    .render()
+                    .reorderable()
+                    .shadows()
+                    .brushMode("1D-axes");  // enable brushing
+
+                //pc1.hideAxis(["Total GVT Computations"]).render()
+                //    .updateAxes();
+
+                pc1.svg.selectAll("text")
+                    .style("font", "10px sans-serif");
+            });
+
+            // load csv file and create the chart
+            d3.csv('data/alldata-gvt.csv', function(data) {
+                var color = function(d) { return colorgen(d.gvt); };
+
+                //var parcoords = d3.parcoords()("#gvt")
+                pc2 = d3.parcoords()("#gvt")
+                    .data(data)
+                    .color(color)
+                    .alpha(0.25)
+                    .composite("darker")
+                    .margin({ top: 54, left: 50, bottom: 12, right: 0 })
+                    .mode("queue")
+                    .render()
+                    .reorderable()
+                    .shadows()
+                    .brushMode("1D-axes");  // enable brushing
+
+                pc2.svg.selectAll("text")
+                    .style("font", "10px sans-serif");
+            });
+        };
+    
+        // call first so screen initially shows whole graph
+        loadData();
+
+        // to change on changing checkboxes
+        //d3.selectAll("input").on("change", loadData());
+        var changeAxes = function(inValue){
+            console.log(pc1.state);
+            if (d3.select("#gvtComps").property("checked")){ 
+                pc1.hideAxis([])
+                    .render()
+                    .createAxes();
+            }
+            else {
+                pc1.hideAxis(["Total GVT Computations"])
+                    .render()
+                    .updateAxes();
+            }
+        };
+
+        //d3.selectAll("input").on("change", function(){
+        //});
+
+    </script>
+    <div id="batch" class="parcoords" style="width:1360px;height:550px"></div>
+    <div id="gvt" class="parcoords" style="width:1360px;height:550px"></div>
+    <div id="metricSelections" style="width:1360px;height:200px">
+        Uncheck boxes to hide axes from the display </br>
+        <input type="checkbox" class="filter_button" id="gvtComps" value="1" onchange="changeAxes()" checked>Total GVT Computations</input>
+        <input type="checkbox" class="filter_button" id="allRed" checked>AllReduce calls</input>
+        <input type="checkbox" class="filter_button" id="avgRed" checked>Average Reduction/GVT</input>
+        <input type="checkbox" class="filter_button" id="totalProc" checked>Total events processed</input>
+        <input type="checkbox" class="filter_button" id="eventsRB" checked>events rolled back</input></br>
+        <input type="checkbox" class="filter_button" id="efficiency" checked>efficiency</input>
+        <input type="checkbox" class="filter_button" id="totalRem" checked>total remote (network) events processed</input>
+        <input type="checkbox" class="filter_button" id="perRem" checked>percent remote events</input>
+        <input type="checkbox" class="filter_button" id="totalRB" checked>total roll backs</input>
+        <input type="checkbox" class="filter_button" id="primaryRB" checked>primary roll backs</input></br>
+        <input type="checkbox" class="filter_button" id="secondaryRB" checked>secondary roll backs</input>
+        <input type="checkbox" class="filter_button" id="fossilCollect" checked>fossil collect attempts</input>
+        <input type="checkbox" class="filter_button" id="netevents" checked>net events processed</input>
+        <input type="checkbox" class="filter_button" id="remoteSends" checked>remote sends</input>
+        <input type="checkbox" class="filter_button" id="remoteRecvs" checked>remote recvs</input>
+    </div>
+    </body>
+</html>
