@@ -73,42 +73,89 @@
         // to change on changing checkboxes
         //d3.selectAll("input").on("change", loadData());
         var changeAxes = function(inValue){
-            console.log(pc1.state);
+            var whichAxes = [];
             if (d3.select("#gvtComps").property("checked")){ 
-                pc1.hideAxis([])
-                    .render()
-                    .createAxes();
+                whichAxes.push("Total GVT Computations");
             }
-            else {
-                pc1.hideAxis(["Total GVT Computations"])
-                    .render()
-                    .updateAxes();
+            if (d3.select("#allRed").property("checked")){ 
+                whichAxes.push("Total All Reduce Calls");
             }
+            if (d3.select("#avgRed").property("checked")){ 
+                whichAxes.push("Average Reduction / GVT");
+            }
+            if (d3.select("#totalProc").property("checked")){ 
+                whichAxes.push("total events processes");
+            }
+            if (d3.select("#eventsRB").property("checked")){ 
+                whichAxes.push("events rolled back");
+            }
+            if (d3.select("#efficiency").property("checked")){ 
+                whichAxes.push("efficiency");
+            }
+            if (d3.select("#totalRem").property("checked")){ 
+                whichAxes.push("total remote network events processed");
+            }
+            if (d3.select("#perRem").property("checked")){ 
+                whichAxes.push("percent remote events");
+            }
+            if (d3.select("#totalRB").property("checked")){ 
+                whichAxes.push("total rollbacks");
+            }
+            if (d3.select("#primaryRB").property("checked")){ 
+                whichAxes.push("primary rollbacks");
+            }
+            if (d3.select("#secondaryRB").property("checked")){ 
+                whichAxes.push("secondary roll backs");
+            }
+            if (d3.select("#fossilCollect").property("checked")){ 
+                whichAxes.push("fossil collect attempts");
+            }
+            if (d3.select("#netevents").property("checked")){ 
+                whichAxes.push("net events processed");
+            }
+            if (d3.select("#remoteSends").property("checked")){ 
+                whichAxes.push("remote sends");
+            }
+            if (d3.select("#remoteRecvs").property("checked")){ 
+                whichAxes.push("remote recvs");
+            }
+
+            var gvtAxes = whichAxes.slice();
+            whichAxes.splice(0, 0, "batch");
+            pc1.detectDimensions()
+                .dimensions(whichAxes)
+                .render()
+                .updateAxes();
+
+            gvtAxes.splice(0, 0, "gvt");
+            pc2.detectDimensions()
+                .dimensions(gvtAxes)
+                .render()
+                .updateAxes();
+            
         };
 
-        //d3.selectAll("input").on("change", function(){
-        //});
 
     </script>
     <div id="batch" class="parcoords" style="width:1360px;height:550px"></div>
     <div id="gvt" class="parcoords" style="width:1360px;height:550px"></div>
     <div id="metricSelections" style="width:1360px;height:200px">
         Uncheck boxes to hide axes from the display </br>
-        <input type="checkbox" class="filter_button" id="gvtComps" value="1" onchange="changeAxes()" checked>Total GVT Computations</input>
-        <input type="checkbox" class="filter_button" id="allRed" checked>AllReduce calls</input>
-        <input type="checkbox" class="filter_button" id="avgRed" checked>Average Reduction/GVT</input>
-        <input type="checkbox" class="filter_button" id="totalProc" checked>Total events processed</input>
-        <input type="checkbox" class="filter_button" id="eventsRB" checked>events rolled back</input></br>
-        <input type="checkbox" class="filter_button" id="efficiency" checked>efficiency</input>
-        <input type="checkbox" class="filter_button" id="totalRem" checked>total remote (network) events processed</input>
-        <input type="checkbox" class="filter_button" id="perRem" checked>percent remote events</input>
-        <input type="checkbox" class="filter_button" id="totalRB" checked>total roll backs</input>
-        <input type="checkbox" class="filter_button" id="primaryRB" checked>primary roll backs</input></br>
-        <input type="checkbox" class="filter_button" id="secondaryRB" checked>secondary roll backs</input>
-        <input type="checkbox" class="filter_button" id="fossilCollect" checked>fossil collect attempts</input>
-        <input type="checkbox" class="filter_button" id="netevents" checked>net events processed</input>
-        <input type="checkbox" class="filter_button" id="remoteSends" checked>remote sends</input>
-        <input type="checkbox" class="filter_button" id="remoteRecvs" checked>remote recvs</input>
+        <input type="checkbox" class="filter_button" id="gvtComps" onchange="changeAxes()" checked>Total GVT Computations</input>
+        <input type="checkbox" class="filter_button" id="allRed" onchange="changeAxes()" checked>AllReduce calls</input>
+        <input type="checkbox" class="filter_button" id="avgRed" onchange="changeAxes()" checked>Average Reduction/GVT</input>
+        <input type="checkbox" class="filter_button" id="totalProc" onchange="changeAxes()" checked>Total events processed</input>
+        <input type="checkbox" class="filter_button" id="eventsRB" onchange="changeAxes()" checked>events rolled back</input></br>
+        <input type="checkbox" class="filter_button" id="efficiency" onchange="changeAxes()" checked>efficiency</input>
+        <input type="checkbox" class="filter_button" id="totalRem" onchange="changeAxes()" checked>total remote (network) events processed</input>
+        <input type="checkbox" class="filter_button" id="perRem" onchange="changeAxes()" checked>percent remote events</input>
+        <input type="checkbox" class="filter_button" id="totalRB" onchange="changeAxes()" checked>total roll backs</input>
+        <input type="checkbox" class="filter_button" id="primaryRB" onchange="changeAxes()" checked>primary roll backs</input></br>
+        <input type="checkbox" class="filter_button" id="secondaryRB" onchange="changeAxes()" checked>secondary roll backs</input>
+        <input type="checkbox" class="filter_button" id="fossilCollect" onchange="changeAxes()" checked>fossil collect attempts</input>
+        <input type="checkbox" class="filter_button" id="netevents" onchange="changeAxes()" checked>net events processed</input>
+        <input type="checkbox" class="filter_button" id="remoteSends" onchange="changeAxes()" checked>remote sends</input>
+        <input type="checkbox" class="filter_button" id="remoteRecvs" onchange="changeAxes()" checked>remote recvs</input>
     </div>
     </body>
 </html>
