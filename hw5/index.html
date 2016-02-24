@@ -15,18 +15,14 @@
         // this uses Chang's d3.parcoords javascript library that is built on top of d3 
 
         var pc1, pc2;
-        var colorgen = d3.scale.ordinal()
-            .range(["#a6cee3","#1f78b4","#b2df8a","#33a02c",
-                "#fb9a99","#e31a1c","#fdbf6f","#ff7f00",
-                "#cab2d6","#6a3d9a","#ffff99","#b15928"]);
+        var colorgen, color1, color2;
 
         // load csv file and create the chart
         d3.csv('data/alldata-batch.csv', function(data) {
-            var color = function(d) { return colorgen(d.batch); };
             //var parcoords = d3.parcoords()("#batch")
             pc1 = d3.parcoords()("#batch")
                 .data(data)
-                .color(color)
+                .color(color1)
                 .alpha(0.25)
                 .composite("darker")
                 .margin({ top: 54, left: 50, bottom: 12, right: 0 })
@@ -41,16 +37,24 @@
             pc1.svg.selectAll("text")
                 .style("font", "10px sans-serif");
 
+            //pc1.dimensions(["batch"])
+            //    .attr("class",
+            //    .updateAxes();
+            //pc1.detectDimensions()
+            //    .dimensions(["batch"])
+            //    .attr("yscale", "log")
+            //    .render()
+             //   .updateAxes();
+
         });
 
         // load csv file and create the chart
         d3.csv('data/alldata-gvt.csv', function(data) {
-            var color = function(d) { return colorgen(d.gvt); };
 
             //var parcoords = d3.parcoords()("#gvt")
             pc2 = d3.parcoords()("#gvt")
                 .data(data)
-                .color(color)
+                .color(color2)
                 .alpha(0.25)
                 .composite("darker")
                 .margin({ top: 54, left: 50, bottom: 12, right: 0 })
@@ -63,6 +67,101 @@
             pc2.svg.selectAll("text")
                 .style("font", "10px sans-serif");
         });
+
+        var changeColors = function(){
+            var choice = document.getElementById('colorChoice').selectedOptions[0].value;
+            var divB = document.getElementById("batch");
+            var divG = document.getElementById("gvt");
+
+            console.log(choice);
+            if (choice == 0){
+                black();
+                divB.style.backgroundColor = "white";
+                divG.style.backgroundColor = "white";
+            }
+            else if (choice == 1){
+                originalColor();
+                divB.style.backgroundColor = "white";
+                divG.style.backgroundColor = "white";
+            }
+            else if (choice == 2){
+                gray();
+                divB.style.backgroundColor = "white";
+                divG.style.backgroundColor = "white";
+            }
+            else if (choice == 3){
+                coolColors();
+                divB.style.backgroundColor = "white";
+                divG.style.backgroundColor = "white";
+            }
+
+        };
+
+        var redrawParcoords = function(){
+            pc1.color(color1)
+                .alpha(0.25)
+                .composite("darker")
+                .margin({ top: 54, left: 50, bottom: 12, right: 0 })
+                .mode("queue")
+                .autoscale()
+                .render()
+                .createAxes()
+                .reorderable()
+                .shadows()
+                .brushMode("1D-axes");  // enable brushing
+            pc2.color(color2)
+                .alpha(0.25)
+                .composite("darker")
+                .margin({ top: 54, left: 50, bottom: 12, right: 0 })
+                .mode("queue")
+                .autoscale()
+                .render()
+                .createAxes()
+                .reorderable()
+                .shadows()
+                .brushMode("1D-axes");  // enable brushing
+        };
+
+        var originalColor = function(){
+            colorgen = d3.scale.ordinal()
+                .range(["#a6cee3","#1f78b4","#b2df8a","#33a02c",
+                    "#fb9a99","#e31a1c","#fdbf6f","#ff7f00",
+                    "#cab2d6","#6a3d9a","#ffff99","#b15928"]);
+
+            color1 = function(d) { return colorgen(d.batch); };
+            color2 = function(d) { return colorgen(d.gvt); };
+            redrawParcoords();
+        }
+
+        var black = function(){
+            colorgen = undefined; 
+
+            color1 = undefined;
+            color2 = undefined;
+            redrawParcoords();
+        }
+
+        var gray = function(){
+            colorgen = d3.scale.ordinal()
+                .range(["#000000", "#252525","#404040","#595959", "#737373",
+                    "#8c8c8c","#a6a6a6","#bfbfbf","#d9d9d9",
+                    "#f2f2f2"]);
+
+            color1 = function(d) { return colorgen(d.batch); };
+            color2 = function(d) { return colorgen(d.gvt); };
+            redrawParcoords();
+        }
+
+        var coolColors = function(){
+            colorgen = d3.scale.ordinal()
+                .range(["#1e4691", "#153165", "#4a6aa7",
+                        "#186574", "#1e7f91", "#348b9c", "#61a5b2",
+                        "#8ebfc8", "#bbd8de"]);
+
+            color1 = function(d) { return colorgen(d.batch); };
+            color2 = function(d) { return colorgen(d.gvt); };
+            redrawParcoords();
+        }
 
         // to change on changing checkboxes
         var changeAxes = function(){
@@ -150,5 +249,27 @@
         <input type="checkbox" class="filter_button" id="remoteSends" onchange="changeAxes()" checked>remote sends</input>
         <input type="checkbox" class="filter_button" id="remoteRecvs" onchange="changeAxes()" checked>remote recvs</input>
     </div>
+    <div id ="colorSelections" style="width:300px;height:200px">
+        Color Schemes:</br> 
+        <select onchange="changeColors()" id="colorChoice">
+            <option value="0">Black on white bg</option>
+            <option value="1">Colorful on white bg</option>
+            <option value="2">Gray on white bg</option>
+            <option value="3">Cool tones on white bg</option>
+            <option value="4">Warm tones on white bg</option>
+            <option value="5">Bold colors on white bg</option>
+            <option value="6">Pastel colors on white bg</option>
+            <option value="7">Color blind aware on white bg</option>
+            <option value="8">Black on black bg</option>
+            <option value="9">Colorful on black bg</option>
+            <option value="10">Gray on black bg</option>
+            <option value="11">Cool tones on black bg</option>
+            <option value="12">Warm tones on black bg</option>
+            <option value="13">Bold colors on black bg</option>
+            <option value="14">Pastel colors on black bg</option>
+            <option value="15">Color blind aware on black bg</option>
+        </select>
+    </div>
+
     </body>
 </html>
