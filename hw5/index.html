@@ -29,6 +29,7 @@
             pc1 = d3.parcoords()("#batch")
                 .data(data)
                 .color(color1)
+                .hideAxis(["Total GVT Computations", "Average Reduction / GVT", "fossil collect attempts"])
                 .alpha(0.25)
                 .composite("darker")
                 .margin({ top: 54, left: 50, bottom: 12, right: 0 })
@@ -58,6 +59,7 @@
             pc2 = d3.parcoords()("#gvt")
                 .data(data)
                 .color(color2)
+                .hideAxis(["Total GVT Computations", "Average Reduction / GVT", "fossil collect attempts"])
                 .alpha(0.25)
                 .composite("darker")
                 .margin({ top: 54, left: 50, bottom: 12, right: 0 })
@@ -199,7 +201,7 @@
 
         var gray = function(){
             colorgen = d3.scale.ordinal()
-                .range(["#000000", "#252525","#404040","#595959", "#737373",
+                .range(["#585858", "#6e6e6e","#404040","#595959", "#737373",
                     "#8c8c8c","#a6a6a6","#bfbfbf","#d9d9d9",
                     "#f2f2f2"]);
 
@@ -327,14 +329,16 @@
             
         };
 
+        
+
     </script>
     <div id="batch" class="parcoords" style="width:1360px;height:550px"></div>
     <div id="gvt" class="parcoords" style="width:1360px;height:550px"></div>
-    <div id="metricSelections" style="width:1360px;height:200px">
+    <div id="metricSelections" style="width:1360px;height:100px">
         Uncheck boxes to hide axes from the display </br>
-        <input type="checkbox" class="filter_button" id="gvtComps" onchange="changeAxes()" checked>Total GVT Computations</input>
+        <input type="checkbox" class="filter_button" id="gvtComps" onchange="changeAxes()">Total GVT Computations</input>
         <input type="checkbox" class="filter_button" id="allRed" onchange="changeAxes()" checked>AllReduce calls</input>
-        <input type="checkbox" class="filter_button" id="avgRed" onchange="changeAxes()" checked>Average Reduction/GVT</input>
+        <input type="checkbox" class="filter_button" id="avgRed" onchange="changeAxes()">Average Reduction/GVT</input>
         <input type="checkbox" class="filter_button" id="totalProc" onchange="changeAxes()" checked>Total events processed</input>
         <input type="checkbox" class="filter_button" id="eventsRB" onchange="changeAxes()" checked>events rolled back</input></br>
         <input type="checkbox" class="filter_button" id="efficiency" onchange="changeAxes()" checked>efficiency</input>
@@ -343,7 +347,7 @@
         <input type="checkbox" class="filter_button" id="totalRB" onchange="changeAxes()" checked>total roll backs</input>
         <input type="checkbox" class="filter_button" id="primaryRB" onchange="changeAxes()" checked>primary roll backs</input></br>
         <input type="checkbox" class="filter_button" id="secondaryRB" onchange="changeAxes()" checked>secondary roll backs</input>
-        <input type="checkbox" class="filter_button" id="fossilCollect" onchange="changeAxes()" checked>fossil collect attempts</input>
+        <input type="checkbox" class="filter_button" id="fossilCollect" onchange="changeAxes()">fossil collect attempts</input>
         <input type="checkbox" class="filter_button" id="netevents" onchange="changeAxes()" checked>net events processed</input>
         <input type="checkbox" class="filter_button" id="remoteSends" onchange="changeAxes()" checked>remote sends</input>
         <input type="checkbox" class="filter_button" id="remoteRecvs" onchange="changeAxes()" checked>remote recvs</input>
